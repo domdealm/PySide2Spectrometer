@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainPagezGfHDf.ui'
+## Form generated from reading UI file 'mainPageaMqndn.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
@@ -10,6 +10,7 @@
 
 from qt_core import *
 from App.GetCamIndex import *
+
 
 class Ui_AppPages(object):
     def setupUi(self, AppPages):
@@ -98,19 +99,21 @@ class Ui_AppPages(object):
         self.AdCursor.setGeometry(QRect(350, 215, 351, 16))
         self.AdCursor.setMaximum(639)
         self.AdCursor.setOrientation(Qt.Horizontal)
-        self.ToggleNM = QCheckBox(self.page)
-        self.ToggleNM.setObjectName(u"ToggleNM")
-        self.ToggleNM.setEnabled(False)
-        self.ToggleNM.setGeometry(QRect(350, 240, 85, 24))
-        self.ToggleNM.setCheckable(True)
-        self.ToggleAmp = QCheckBox(self.page)
-        self.ToggleAmp.setObjectName(u"ToggleAmp")
-        self.ToggleAmp.setEnabled(False)
-        self.ToggleAmp.setGeometry(QRect(480, 240, 131, 24))
-        self.ToggleAmp.setCheckable(True)
         self.ImgFlip = QRadioButton(self.page)
         self.ImgFlip.setObjectName(u"ImgFlip")
         self.ImgFlip.setGeometry(QRect(230, 0, 91, 17))
+        self.label_10 = QLabel(self.page)
+        self.label_10.setObjectName(u"label_10")
+        self.label_10.setGeometry(QRect(350, 240, 111, 16))
+        self.LNano = QLabel(self.page)
+        self.LNano.setObjectName(u"LNano")
+        self.LNano.setGeometry(QRect(460, 240, 51, 16))
+        self.label_17 = QLabel(self.page)
+        self.label_17.setObjectName(u"label_17")
+        self.label_17.setGeometry(QRect(540, 240, 101, 16))
+        self.LInt = QLabel(self.page)
+        self.LInt.setObjectName(u"LInt")
+        self.LInt.setGeometry(QRect(640, 240, 31, 16))
         AppPages.addWidget(self.page)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
@@ -124,10 +127,12 @@ class Ui_AppPages(object):
         self.line_2.setGeometry(QRect(10, 340, 701, 20))
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
-        self.horizontalSlider = QSlider(self.page_2)
-        self.horizontalSlider.setObjectName(u"horizontalSlider")
-        self.horizontalSlider.setGeometry(QRect(10, 400, 321, 16))
-        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.CamSlide2 = QSlider(self.page_2)
+        self.CamSlide2.setObjectName(u"CamSlide2")
+        self.CamSlide2.setGeometry(QRect(10, 400, 321, 16))
+        self.CamSlide2.setOrientation(Qt.Horizontal)
+        self.CamSlide2.setMaximum(479)
+        self.CamSlide2.setValue(240)
         self.label_8 = QLabel(self.page_2)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setGeometry(QRect(10, 370, 171, 18))
@@ -231,7 +236,7 @@ class Ui_AppPages(object):
 
         self.retranslateUi(AppPages)
 
-        AppPages.setCurrentIndex(2)
+        AppPages.setCurrentIndex(1)
         self.CamList.setCurrentIndex(-1)
 
 
@@ -253,9 +258,11 @@ class Ui_AppPages(object):
         self.label_3.setText(QCoreApplication.translate("AppPages", u" Selecionar Linha:", None))
         self.GraphSnap.setText(QCoreApplication.translate("AppPages", u"Salvar Imagem", None))
         self.ToggleCursor.setText(QCoreApplication.translate("AppPages", u"Ativar Cursor:", None))
-        self.ToggleNM.setText(QCoreApplication.translate("AppPages", u"Exibir \u03bb", None))
-        self.ToggleAmp.setText(QCoreApplication.translate("AppPages", u"Exibir Amplitude", None))
         self.ImgFlip.setText(QCoreApplication.translate("AppPages", u"Inverter Horiz.", None))
+        self.label_10.setText(QCoreApplication.translate("AppPages", u"Comprimento de onda:", None))
+        self.LNano.setText(QCoreApplication.translate("AppPages", u" ---.-- nm", None))
+        self.label_17.setText(QCoreApplication.translate("AppPages", u"Intensidade(norm.):", None))
+        self.LInt.setText(QCoreApplication.translate("AppPages", u" -.--", None))
         self.CamFeed.setText(QCoreApplication.translate("AppPages", u"TextLabel", None))
         self.label_8.setText(QCoreApplication.translate("AppPages", u"Ajuste de altura:", None))
 #if QT_CONFIG(tooltip)
