@@ -396,6 +396,9 @@
       <height>300</height>
      </rect>
     </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
@@ -422,14 +425,14 @@
    <widget class="QSlider" name="CamSlide2">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>390</x>
       <y>400</y>
       <width>321</width>
       <height>16</height>
      </rect>
     </property>
     <property name="maximum">
-     <number>639</number>
+     <number>479</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -438,14 +441,14 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>390</x>
       <y>370</y>
       <width>171</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
-     <string>Ajuste de altura:</string>
+     <string>Selecionar linha de pixels:</string>
     </property>
    </widget>
    <widget class="Line" name="line_3">
@@ -506,14 +509,15 @@
      <string>Ok</string>
     </property>
     <property name="icon">
-     <iconset theme="Ok"/>
+     <iconset theme="Ok">
+      <normaloff>.</normaloff>.</iconset>
     </property>
    </widget>
    <widget class="QComboBox" name="CamList2">
     <property name="geometry">
      <rect>
       <x>390</x>
-      <y>390</y>
+      <y>470</y>
       <width>311</width>
       <height>26</height>
      </rect>
@@ -526,13 +530,218 @@
     <property name="geometry">
      <rect>
       <x>390</x>
-      <y>360</y>
+      <y>440</y>
       <width>111</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
      <string> Lista de câmeras:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ApplyCrop">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>540</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Aplicar Redimensionamento</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="CropXStart">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>422</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>639</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="CropXEnd">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>422</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>639</number>
+    </property>
+    <property name="value">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="CropYStart">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>492</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>479</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="CropYEnd">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>492</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>479</number>
+    </property>
+    <property name="value">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="CropConEnable">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>360</y>
+      <width>171</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ativar Redimensionamento</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="RevertCrop">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>540</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reverter Redimensionamento</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>380</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Eixo X:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>400</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Início:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>400</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fim:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>450</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Eixo Y:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>470</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Início:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>470</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fim:</string>
     </property>
    </widget>
   </widget>
@@ -756,38 +965,6 @@
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_16">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>310</y>
-      <width>321</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecione um modelo de calibração com pontos já conhecidos, para preencher o primeiro e segundo ponto automaticamente.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="text">
-     <string>Selecionar modelo pré definido:</string>
-    </property>
-    <property name="textFormat">
-     <enum>Qt::AutoText</enum>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="CalModel">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>340</y>
-      <width>331</width>
-      <height>26</height>
-     </rect>
     </property>
    </widget>
   </widget>

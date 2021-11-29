@@ -19,8 +19,9 @@ class Main_Window(QMainWindow):
         self.ui = MainWindow()
         self.ui.setup_UI(self)
         
-        # Índice atual
+        # Flags
         self.CurrPage = 0
+        self.IsCropped = False
 
         # Definições OpenCV
         self.CamID = 0
@@ -54,6 +55,9 @@ class Main_Window(QMainWindow):
         self.ui.UiPages.ApplyIPCAM.clicked.connect(self.AppendCam)
         self.ui.UiPages.GraphCSV.clicked.connect(self.GenCSV)
         self.ui.UiPages.GraphSnap.clicked.connect(self.SnapGraph)
+        self.ui.UiPages.CropConEnable.clicked.connect(self.CropCons)
+        self.ui.UiPages.ApplyCrop.clicked.connect(self.ApplyCrop)
+        self.ui.UiPages.RevertCrop.clicked.connect(self.UndoCrop)
 
         # Criando a escala + calibração:
         # [ (X,Y pixeis),(X,Y nanometros)]
@@ -68,20 +72,30 @@ class Main_Window(QMainWindow):
             self.nanometers[i] = self.ScaleZeroVal+(i/(self.PixRange/self.NMRange))
             self.nanometersINT[i] = int(self.ScaleZeroVal+(i/(self.PixRange/self.NMRange)))
 
-
         # Mostrar a janela:
         self.show()
     
     def VideoLabel(self):
         # Feed da Webcam:
-        ret, frame = self.capture.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        ret, capt = self.capture.read()
+
+        if self.IsCropped:
+            crop = capt[self.x1:self.x2,self.y1:self.y2]
+            crop = cv2.resize(crop,(640,480))
+            frame = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+            frame1 = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+        else:
+            frame = cv2.cvtColor(capt, cv2.COLOR_BGR2RGB)
+            frame1 = cv2.cvtColor(capt, cv2.COLOR_BGR2RGB)
+        
         if self.ui.UiPages.ImgFlip.isChecked():
             frame1 = cv2.flip(frame, 1)
             frame = cv2.flip(frame,1)
-        else:
-            ret,frame1 = self.capture.read()  #Frame1 é o que é exibido
-            frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGB)
+        #else:
+            #ret,frame1 = self.capture.read()  #Frame1 é o que é exibido
+            #frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2RGB)
+            
+
         # Desenhando Linha antes de dar o resize:
         self.RowCursor = self.ui.UiPages.PixRowSlider.value()
         cv2.line(frame1,(0,self.RowCursor),(640,self.RowCursor),(0,0,0),3)
@@ -99,10 +113,10 @@ class Main_Window(QMainWindow):
 
         # Grade
         # X
-        cv2.line(graph,(28,209),(684,209),(155,155,155),1)
-        cv2.line(graph,(28,146),(684,146),(155,155,155),1)
-        cv2.line(graph,(28,78),(684,78),(155,155,155),1)
-        cv2.line(graph,(28,17),(684,17),(155,155,155),1)
+        cv2.line(graph,(28,209),(678,209),(155,155,155),1)
+        cv2.line(graph,(28,146),(678,146),(155,155,155),1)
+        cv2.line(graph,(28,78),(678,78),(155,155,155),1)
+        cv2.line(graph,(28,17),(678,17),(155,155,155),1)
         # Y
         cv2.line(graph,(166,276),(166,17),(155,155,155),1)
         cv2.line(graph,(294,276),(294,17),(155,155,155),1)
@@ -165,11 +179,22 @@ class Main_Window(QMainWindow):
         if self.ui.UiPages.Calibrate.isChecked():
             cv2.line(graph,(FPCursor,0),(FPCursor,290),(0,0,0),1)
             cv2.line(graph,(SPCursor,0),(SPCursor,290),(0,0,0),1)
+        
+        # Recorte
+        
+        if self.ui.UiPages.CropConEnable.isChecked():
+            cv2.rectangle(frame1,(self.ui.UiPages.CropXStart.value(),self.ui.UiPages.CropYEnd.value()),\
+                (self.ui.UiPages.CropXEnd.value(),self.ui.UiPages.CropYStart.value()),(255,140,0),1,cv2.LINE_AA)
+
+        # Exibindo Cursor
+
         if self.ui.UiPages.ToggleCursor.isChecked():
             cv2.drawMarker(graph,(MWCursor,(272-self.intensity[self.ui.UiPages.AdCursor.value()])),(0,0,0),MARKER_CROSS,10,3)
             cv2.drawMarker(graph,(MWCursor,(272-self.intensity[self.ui.UiPages.AdCursor.value()])),(255,255,255),MARKER_CROSS,10,1)
             self.ui.UiPages.LNano.setText(' '+str(round(self.nanometers[self.ui.UiPages.AdCursor.value()],2))+"nm")
             self.ui.UiPages.LInt.setText(" "+str(round((self.intensity[self.ui.UiPages.AdCursor.value()]/255),2)))
+        
+        
         # Exibição:
 
         # Primeira Página:
@@ -238,7 +263,6 @@ class Main_Window(QMainWindow):
             self.ui.UiPages.LNano.setEnabled(False)
             self.ui.UiPages.LInt.setEnabled(False)
 
-
     
     def ApplyCal(self):
         CalA = (self.ui.UiPages.FirstPoint.value(),self.ui.UiPages.SecondPoint.value())
@@ -289,12 +313,44 @@ class Main_Window(QMainWindow):
     def SnapGraph(self):
         file= QFileDialog()
         fileName = file.getSaveFileName(self,'Salvar Imagem do gráfico','','*.jpg,*.png,*.svg')
-        cv2.imwrite(fileName[0],cv2.cvtColor(self.graphic,cv2.COLOE_BGR2RGB))
+        cv2.imwrite(fileName[0],cv2.cvtColor(self.graphic,cv2.COLOR_BGR2RGB))
 
     def SnapShot(self):
         file= QFileDialog()
         fileName = file.getSaveFileName(self,'Salvar Imagem do gráfico','','*.jpg,*.png,*.svg')
         cv2.imwrite(fileName[0],cv2.cvtColor(self.Frame,cv2.COLOR_BGR2RGB))
+
+    def CropCons(self):
+        if self.ui.UiPages.CropConEnable.isChecked():
+            self.ui.UiPages.CropXEnd.setEnabled(True)
+            self.ui.UiPages.CropYEnd.setEnabled(True)
+            self.ui.UiPages.CropXStart.setEnabled(True)
+            self.ui.UiPages.CropYStart.setEnabled(True)
+        else:
+            self.ui.UiPages.CropXEnd.setEnabled(False)
+            self.ui.UiPages.CropYEnd.setEnabled(False)
+            self.ui.UiPages.CropXStart.setEnabled(False)
+            self.ui.UiPages.CropYStart.setEnabled(False)
+
+        pass
+
+    def ApplyCrop(self):
+        self.IsCropped = True
+        self.ui.UiPages.CropConEnable.setChecked(False)
+        self.ui.UiPages.ApplyCrop.setEnabled(False)
+        self.ui.UiPages.RevertCrop.setEnabled(True)
+        # Atribuindo Valores
+        self.x1 = self.ui.UiPages.CropXStart.value()
+        self.x2 = self.ui.UiPages.CropXEnd.value()
+        self.y1 = self.ui.UiPages.CropYStart.value()
+        self.y2 = self.ui.UiPages.CropYEnd.value()
+
+        
+    def UndoCrop(self):
+        self.IsCropped = False
+        self.ui.UiPages.CropConEnable.setChecked(False)
+        self.ui.UiPages.RevertCrop.setEnabled(False)
+        self.ui.UiPages.ApplyCrop.setEnabled(True)
 
 
 

@@ -16,7 +16,9 @@ def returnCameraIndexes():
         return arr
 
 # Colar no ui_MainPage:
-#         self.List = returnCameraIndexes()
+        # self.List = returnCameraIndexes()
         # for i in range(len(self.List)):
         #     self.CamList.addItem(f"Camera {i}")
+        #     self.CamList2.addItem(f"Camera {i}")
+
 
