@@ -22,6 +22,7 @@ class Main_Window(QMainWindow):
         # Flags
         self.CurrPage = 0
         self.IsCropped = False
+        self.ChannelSplit = 1
 
         # Definições OpenCV
         self.CamID = 0
@@ -58,6 +59,8 @@ class Main_Window(QMainWindow):
         self.ui.UiPages.CropConEnable.clicked.connect(self.CropCons)
         self.ui.UiPages.ApplyCrop.clicked.connect(self.ApplyCrop)
         self.ui.UiPages.RevertCrop.clicked.connect(self.UndoCrop)
+        self.ui.UiPages.KeepRatio.clicked.connect(self.AspectRatio)
+        self.ui.UiPages.SpecMethod.currentIndexChanged.connect(self.SpecMethod)
 
         # Criando a escala + calibração:
         # [ (X,Y pixeis),(X,Y nanometros)]
@@ -80,7 +83,7 @@ class Main_Window(QMainWindow):
         ret, capt = self.capture.read()
 
         if self.IsCropped:
-            crop = capt[self.x1:self.x2,self.y1:self.y2]
+            crop = capt[self.y1:self.y2,self.x1:self.x2]
             crop = cv2.resize(crop,(640,480))
             frame = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
             frame1 = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
@@ -106,7 +109,11 @@ class Main_Window(QMainWindow):
         # Criando uma imagem vazia
         graph = np.zeros([300,720,3],dtype=np.uint8)
         graph.fill(255) # Preenchendo com branco
-        bw =  cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
+
+        if self.ChannelSplit ==1:
+            bw =  cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
+        else:
+            bw = np.mean(frame,axis=2).astype(int)
 
         _,cols = bw.shape
         self.intensity = [0]*640
@@ -168,7 +175,7 @@ class Main_Window(QMainWindow):
 
         # Arquivos para Fotos:
         self.graphic = graph
-        self.Frame = frame
+        self.Frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         
 
         # Calibração
@@ -183,6 +190,10 @@ class Main_Window(QMainWindow):
         # Recorte
         
         if self.ui.UiPages.CropConEnable.isChecked():
+            if self.ui.UiPages.KeepRatio.isChecked():
+                self.ui.UiPages.CropXEnd.setValue(self.ui.UiPages.CropXStart.value() + ((4/3)*\
+                    self.ui.UiPages.CropYEnd.value()-self.ui.UiPages.CropYStart.value()))
+
             cv2.rectangle(frame1,(self.ui.UiPages.CropXStart.value(),self.ui.UiPages.CropYEnd.value()),\
                 (self.ui.UiPages.CropXEnd.value(),self.ui.UiPages.CropYStart.value()),(255,140,0),1,cv2.LINE_AA)
 
@@ -220,7 +231,6 @@ class Main_Window(QMainWindow):
         self.capture.release()
         self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList.currentIndex()])
     def CamRelease2(self):
-        print("oi")
         self.capture.release()
         self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList2.currentIndex()])
     
@@ -306,9 +316,16 @@ class Main_Window(QMainWindow):
         # print(len(self.intensity))
         # print(str(self.intensity[1]))
         fcsv = open(fileName[0],'w')
-        fcsv.write('Lambda,Intensidade\n')
-        for i in range(640):
-            fcsv.write(str(self.nanometers[i])+','+str(self.intensity[i])+'\n')
+        if self.ui.UiPages.SplitChannel.isChecked():
+            R,G,B = cv2.split(self.Frame)
+            fcsv.write('Lambda,Média,R,G,B'+','+self.ui.UiPages.SpecMethod.currentText()+'\n')
+            for i in range(640):
+                fcsv.write(str(self.nanometers[i])+','+str(self.intensity[i])+','+str(R[self.RowCursor,i])\
+                    +','+str(G[self.RowCursor,i])+','+str(B[self.RowCursor,i])+'\n')
+        else:
+            fcsv.write('Lambda,Intensidade'+','+self.ui.UiPages.SpecMethod.currentText()+'\n')
+            for i in range(640):
+                fcsv.write(str(self.nanometers[i])+','+str(self.intensity[i])+'\n')
     
     def SnapGraph(self):
         file= QFileDialog()
@@ -318,9 +335,10 @@ class Main_Window(QMainWindow):
     def SnapShot(self):
         file= QFileDialog()
         fileName = file.getSaveFileName(self,'Salvar Imagem do gráfico','','*.jpg,*.png,*.svg')
-        cv2.imwrite(fileName[0],cv2.cvtColor(self.Frame,cv2.COLOR_BGR2RGB))
+        cv2.imwrite(fileName[0],self.Frame)
 
     def CropCons(self):
+        self.ui.UiPages.KeepRatio.setEnabled(True)
         if self.ui.UiPages.CropConEnable.isChecked():
             self.ui.UiPages.CropXEnd.setEnabled(True)
             self.ui.UiPages.CropYEnd.setEnabled(True)
@@ -339,12 +357,12 @@ class Main_Window(QMainWindow):
         self.ui.UiPages.CropConEnable.setChecked(False)
         self.ui.UiPages.ApplyCrop.setEnabled(False)
         self.ui.UiPages.RevertCrop.setEnabled(True)
+
         # Atribuindo Valores
         self.x1 = self.ui.UiPages.CropXStart.value()
         self.x2 = self.ui.UiPages.CropXEnd.value()
         self.y1 = self.ui.UiPages.CropYStart.value()
         self.y2 = self.ui.UiPages.CropYEnd.value()
-
         
     def UndoCrop(self):
         self.IsCropped = False
@@ -353,6 +371,14 @@ class Main_Window(QMainWindow):
         self.ui.UiPages.ApplyCrop.setEnabled(True)
 
 
+    def AspectRatio(self):
+        if self.ui.UiPages.KeepRatio.isChecked():
+            self.ui.UiPages.CropXEnd.setEnabled(False)
+        else:
+            self.ui.UiPages.CropXEnd.setEnabled(True)
+
+    def SpecMethod(self):
+        self.ChannelSplit = self.ui.UiPages.SpecMethod.currentIndex()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

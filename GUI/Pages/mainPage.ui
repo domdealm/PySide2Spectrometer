@@ -14,7 +14,7 @@
    <string>StackedWidget</string>
   </property>
   <property name="currentIndex">
-   <number>1</number>
+   <number>2</number>
   </property>
   <widget class="QWidget" name="page">
    <widget class="QLabel" name="LiveFeed">
@@ -744,6 +744,19 @@
      <string>Fim:</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="KeepRatio">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>360</y>
+      <width>111</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Manter Proporção</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QWidget" name="page_3">
    <widget class="QLabel" name="LiveGraph_2">
@@ -966,6 +979,52 @@
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
+   </widget>
+   <widget class="QCheckBox" name="SplitChannel">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>320</y>
+      <width>231</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ativar divisão de canais no arquivo .csv</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>350</y>
+      <width>191</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Método de obtenção do espectro:</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="SpecMethod">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>370</y>
+      <width>341</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Média</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Conversão para escala de cinza</string>
+     </property>
+    </item>
    </widget>
   </widget>
  </widget>

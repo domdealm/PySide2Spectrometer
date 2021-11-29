@@ -47,11 +47,14 @@ class MainWindow(object):
         # Botões do menu esquerdo
         self.HomeButton = QPushButton("Início")
         self.HomeButton.setStyleSheet("color: white")
-        self.ConfigCam = QPushButton("Config. Cam")
+        self.HomeButton.setFixedSize(45,45)
+        self.ConfigCam = QPushButton("Config.\nCamera")
+        self.ConfigCam.setFixedSize(45,45)
         self.ConfigCam.setStyleSheet("color: white")
-        self.ConfigGraph = QPushButton("Config. Graf.")
+        self.ConfigGraph = QPushButton("Config.\nGrafico")
+        self.ConfigGraph.setFixedSize(45,45)
         self.ConfigGraph.setStyleSheet("color: white")
-        self.LMSpacer = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        self.LMSpacer = QSpacerItem(0,0,QSizePolicy.Minimum,QSizePolicy.Expanding)
 
         # Adicionando no Layout do menu esquerdo
         self.LeftMenuLayout.addWidget(self.HomeButton)
