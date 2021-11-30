@@ -334,7 +334,7 @@ class Main_Window(QMainWindow):
 
     def SnapShot(self):
         file= QFileDialog()
-        fileName = file.getSaveFileName(self,'Salvar Imagem do gráfico','','*.jpg,*.png,*.svg')
+        fileName = file.getSaveFileName(self,'Salvar Imagem da câmera','','*.jpg,*.png,*.svg')
         cv2.imwrite(fileName[0],self.Frame)
 
     def CropCons(self):

@@ -54,7 +54,7 @@ class MainWindow(object):
         self.ConfigGraph = QPushButton("Config.\nGrafico")
         self.ConfigGraph.setFixedSize(45,45)
         self.ConfigGraph.setStyleSheet("color: white")
-        self.LMSpacer = QSpacerItem(0,0,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        self.LMSpacer = QSpacerItem(10,10,QSizePolicy.Minimum,QSizePolicy.Expanding)
 
         # Adicionando no Layout do menu esquerdo
         self.LeftMenuLayout.addWidget(self.HomeButton)
