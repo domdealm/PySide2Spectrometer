@@ -31,7 +31,8 @@ class Main_Window(QMainWindow):
         #self.PixelRow = 241
         
         # Inicializando o OpenCV:
-        self.capture = cv2.VideoCapture(self.CamID)
+        self.capture = cv2.VideoCapture(self.CamID,cv2.CAP_DSHOW)
+        #self.capture.set(cv2.CAP_PROP_SETTINGS, 1)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.VideoSize.width())
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.VideoSize.height())
 
@@ -61,19 +62,31 @@ class Main_Window(QMainWindow):
         self.ui.UiPages.RevertCrop.clicked.connect(self.UndoCrop)
         self.ui.UiPages.KeepRatio.clicked.connect(self.AspectRatio)
         self.ui.UiPages.SpecMethod.currentIndexChanged.connect(self.SpecMethod)
+        self.ui.UiPages.DShow.clicked.connect(self.DShow)
 
         # Criando a escala + calibração:
-        # [ (X,Y pixeis),(X,Y nanometros)]
-        self.CalPoints = [(0,640),(780,380)]
-        self.PixRange = abs(self.CalPoints[0][0] - self.CalPoints[0][1])
-        self.NMRange = abs(self.CalPoints[1][0] - self.CalPoints[1][1])
+
+        self.calX = [0,213,426,639]
+        self.calY = [380,513,646,779]
         self.scaleZero = 38
-        self.ScaleZeroVal = 380
         self.nanometers = [0]*640
         self.nanometersINT = [0]*640
+        self.coef = np.polyfit(self.calX,self.calY,2)
+        #print(self.coef[0])
         for i in range(640):
-            self.nanometers[i] = self.ScaleZeroVal+(i/(self.PixRange/self.NMRange))
-            self.nanometersINT[i] = int(self.ScaleZeroVal+(i/(self.PixRange/self.NMRange)))
+            self.nanometers[i] = (self.coef[0]*np.power(i,2)) + (self.coef[1]*i) + self.coef[2]
+            self.nanometersINT[i] = int((self.coef[0]*np.power(i,2)) + (self.coef[1]*i) + self.coef[2])
+            
+        # self.CalPoints = [(0,640),(780,380)]
+        # self.PixRange = abs(self.CalPoints[0][0] - self.CalPoints[0][1])
+        # self.NMRange = abs(self.CalPoints[1][0] - self.CalPoints[1][1])
+        # self.scaleZero = 38
+        # self.ScaleZeroVal = 380
+        # self.nanometers = [0]*640
+        # self.nanometersINT = [0]*640
+        # for i in range(640):
+        #     self.nanometers[i] = self.ScaleZeroVal+(i/(self.PixRange/self.NMRange))
+        #     self.nanometersINT[i] = int(self.ScaleZeroVal+(i/(self.PixRange/self.NMRange)))
 
         # Mostrar a janela:
         self.show()
@@ -87,6 +100,7 @@ class Main_Window(QMainWindow):
             crop = cv2.resize(crop,(640,480))
             frame = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
             frame1 = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+
         else:
             frame = cv2.cvtColor(capt, cv2.COLOR_BGR2RGB)
             frame1 = cv2.cvtColor(capt, cv2.COLOR_BGR2RGB)
@@ -159,18 +173,16 @@ class Main_Window(QMainWindow):
         index = 0
         self.wavelengthdata = []
 
-        for i in self.intensity:
-            wavelength = self.ScaleZeroVal+(index/(self.PixRange/self.NMRange))
-            wavelengthdata = round(wavelength,1)
+        for i in range(640):
+            wavelength = self.nanometers[i]
             wavelength = round(wavelength)
-            self.wavelengthdata.append(wavelengthdata)
             rgb= wavelength_to_rgb(wavelength)
             r = rgb[0]
             g = rgb[1]
             b = rgb[2]
-            cv2.line(graph, (self.scaleZero+index,272), (self.scaleZero+index,272-i), (r,g,b), 1)
+            cv2.line(graph, (self.scaleZero+i,272), (self.scaleZero+i,272-self.intensity[i]), (r,g,b), 1)
             #cv2.line(graph, (index,253-i), (index,255-i), (0,0,0), 1,cv2.LINE_AA)
-            index += 1
+            #index += 1
         GraphLabel = QImage(graph, graph.shape[1], graph.shape[0],graph.strides[0], QImage.Format_RGB888)
 
         # Arquivos para Fotos:
@@ -182,10 +194,14 @@ class Main_Window(QMainWindow):
 
         FPCursor = self.ui.UiPages.FirstPoint.value() + self.scaleZero
         SPCursor = self.ui.UiPages.SecondPoint.value() + self.scaleZero
+        TPCursor = self.ui.UiPages.ThirdPoint.value() + self.scaleZero
+        FoPCursor = self.ui.UiPages.FourthPoint.value() + self.scaleZero
         MWCursor = self.ui.UiPages.AdCursor.value() + self.scaleZero
         if self.ui.UiPages.Calibrate.isChecked():
             cv2.line(graph,(FPCursor,0),(FPCursor,290),(0,0,0),1)
             cv2.line(graph,(SPCursor,0),(SPCursor,290),(0,0,0),1)
+            cv2.line(graph,(TPCursor,0),(TPCursor,290),(0,0,0),1)
+            cv2.line(graph,(FoPCursor,0),(FoPCursor,290),(0,0,0),1)
         
         # Recorte
         
@@ -229,10 +245,10 @@ class Main_Window(QMainWindow):
     
     def CamRelease(self):
         self.capture.release()
-        self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList.currentIndex()])
+        self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList.currentIndex()],cv2.CAP_DSHOW)
     def CamRelease2(self):
         self.capture.release()
-        self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList2.currentIndex()])
+        self.capture = cv2.VideoCapture(self.ui.UiPages.List[self.ui.UiPages.CamList2.currentIndex()],cv2.CAP_DSHOW)
     
     def PREditUpdater(self):
         self.ui.UiPages.PixelRowEdit.setText(str(self.ui.UiPages.PixRowSlider.value()))
@@ -244,9 +260,13 @@ class Main_Window(QMainWindow):
     
 
     def PAGE0(self):
+        self.ui.UiPages.Calibrate.setChecked(False)
+        self.CalEnable()
         self.ui.pages.setCurrentWidget(self.ui.UiPages.page)
         self.CurrPage = 0
     def PAGE1(self):
+        self.ui.UiPages.Calibrate.setChecked(False)
+        self.CalEnable()
         self.ui.pages.setCurrentWidget(self.ui.UiPages.page_2)
         self.CurrPage = 1
     def PAGE2(self):
@@ -256,11 +276,15 @@ class Main_Window(QMainWindow):
     def CalEnable(self):
         if self.ui.UiPages.Calibrate.isChecked():
             self.ui.UiPages.FirstPoint.setEnabled(True)
-            self.ui.UiPages.SecondPoint.setEnabled(True)            
+            self.ui.UiPages.SecondPoint.setEnabled(True)
+            self.ui.UiPages.ThirdPoint.setEnabled(True)
+            self.ui.UiPages.FourthPoint.setEnabled(True)             
 
         else:
             self.ui.UiPages.FirstPoint.setEnabled(False)
             self.ui.UiPages.SecondPoint.setEnabled(False)
+            self.ui.UiPages.ThirdPoint.setEnabled(False) 
+            self.ui.UiPages.ThirdPoint.setEnabled(False) 
     
     def CursorEnable(self):
         if self.ui.UiPages.ToggleCursor.isChecked():
@@ -275,18 +299,29 @@ class Main_Window(QMainWindow):
 
     
     def ApplyCal(self):
-        CalA = (self.ui.UiPages.FirstPoint.value(),self.ui.UiPages.SecondPoint.value())
-        CalB = (self.ui.UiPages.SPWL.value(),self.ui.UiPages.FPWL.value())
-        self.CalPoints = [CalA,CalB]
-        self.PixRange = abs(self.CalPoints[0][0] - self.CalPoints[0][1])
-        self.NMRange = abs(self.CalPoints[1][0] - self.CalPoints[1][1])
-        self.ScaleZeroVal = (self.ui.UiPages.FPWL.value() - (self.ui.UiPages.FirstPoint.value()/(self.PixRange/self.NMRange)))
+        calX = [self.ui.UiPages.FirstPoint.value(),self.ui.UiPages.SecondPoint.value(),\
+            self.ui.UiPages.ThirdPoint.value(),self.ui.UiPages.FourthPoint.value()]
+        calY = [self.ui.UiPages.FPWL.value(),self.ui.UiPages.SPWL.value(),self.ui.UiPages.TPWL.value(),\
+            self.ui.UiPages.FoPWL.value()]
+        self.coef = np.polyfit(calX,calY,2)
         for i in range(640):
-            self.nanometers[i] = self.ScaleZeroVal+(i/(self.PixRange/self.NMRange))
-            self.nanometersINT[i] = int(self.ScaleZeroVal+(i/(self.PixRange/self.NMRange)))
+            self.nanometers[i] = (self.coef[0]*np.power(i,2)) + (self.coef[1]*i) + self.coef[2]
+            self.nanometersINT[i] = int((self.coef[0]*np.power(i,2)) + (self.coef[1]*i) + self.coef[2])
+            
+
+        
+        # CalA = (self.ui.UiPages.FirstPoint.value(),self.ui.UiPages.SecondPoint.value())
+        # CalB = (self.ui.UiPages.SPWL.value(),self.ui.UiPages.FPWL.value())
+        # self.CalPoints = [CalA,CalB]
+        # self.PixRange = abs(self.CalPoints[0][0] - self.CalPoints[0][1])
+        # self.NMRange = abs(self.CalPoints[1][0] - self.CalPoints[1][1])
+        # self.ScaleZeroVal = (self.ui.UiPages.FPWL.value() - (self.ui.UiPages.FirstPoint.value()/(self.PixRange/self.NMRange)))
+        # for i in range(640):
+        #     self.nanometers[i] = self.ScaleZeroVal+(i/(self.PixRange/self.NMRange))
+        #     self.nanometersINT[i] = int(self.ScaleZeroVal+(i/(self.PixRange/self.NMRange)))
         
     def AppendCam(self):
-        cap = cv2.VideoCapture(self.ui.UiPages.IPCAM.text())
+        cap = cv2.VideoCapture(self.ui.UiPages.IPCAM.text(),cv2.CAP_DSHOW)
         if cap.read()[0]:
             index = 0
             self.ui.UiPages.List.append(self.ui.UiPages.IPCAM.text())
@@ -379,6 +414,9 @@ class Main_Window(QMainWindow):
 
     def SpecMethod(self):
         self.ChannelSplit = self.ui.UiPages.SpecMethod.currentIndex()
+
+    def DShow(self):
+        self.capture.set(cv2.CAP_PROP_SETTINGS,1)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
