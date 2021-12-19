@@ -1,2 +1,2 @@
-# PySide2Spectrometer
+# SpeQtra
 Software para espectrometria.
